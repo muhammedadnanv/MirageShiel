@@ -1,0 +1,76 @@
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa; /* Light gray background */
+    color: #333; /* Text color */
+}
+
+h1 {
+    color: #dc3545; /* Red header */
+    text-align: center;
+}
+
+form {
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff; /* White form background */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+label {
+    color: #495057; /* Dark gray label text */
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    border: 1px solid #ced4da; /* Light gray border */
+    border-radius: 4px;
+}
+
+button {
+    background-color: #dc3545; /* Red button background */
+    color: #fff; /* White button text */
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    border-radius: 4px;
+}
+
+#result {
+    margin-top: 20px;
+    text-align: center;
+}
+
+img {
+    max-width: 100%;
+    margin-top: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+p {
+    margin-top: 10px;
+    color: #495057; /* Dark gray paragraph text */
+}
+
+footer {
+    background-color: #343a40; /* Dark background for the footer */
+    color: #fff; /* White text in the footer */
+    text-align: center;
+    padding: 10px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
