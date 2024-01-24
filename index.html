@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nudity Detection</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Nudity Detection</h1>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <label for="file">Choose an image:</label>
+        <input type="file" name="file" accept="image/*" required>
+        <br>
+        <button type="submit">Upload</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        const form = document.querySelector('form');
+        const resultDiv = document.getElementById('result');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(form);
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+
+            const img = document.createElement('img');
+            img.src = result.imagePath;
+            img.alt = 'Processed Image';
+            img.style.maxWidth = '400px';
+
+            resultDiv.innerHTML = '';
+            resultDiv.appendChild(img);
+            resultDiv.innerHTML += `<p>${result.result}</p>`;
+        });
+    </script>
+  <script src="script.js">
+    
+  </script>
+</body>
+</html>
