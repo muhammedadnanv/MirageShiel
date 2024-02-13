@@ -26,6 +26,13 @@ document.getElementById('imageForm').addEventListener('submit', async function(e
 
     // Display result
     resultDiv.innerHTML = `<div class="alert alert-${prediction ? 'danger' : 'success'}" role="alert">${prediction ? 'Nudity Detected' : 'No Nudity Detected'}</div>`;
+
+    // Show the additional alert after successful upload
+    if (!prediction) {
+      setTimeout(function() {
+        showAdditionalAlert();
+      }, 20000); // Wait for 20 days (20,000 milliseconds)
+    }
   };
 });
 
@@ -42,4 +49,9 @@ async function loadModel() {
 async function predict(processedImg, model) {
   // Make prediction using the loaded model
   return false; // Placeholder, replace with actual prediction logic
+}
+
+function showAdditionalAlert() {
+  const resultDiv = document.getElementById('result');
+  resultDiv.innerHTML += '<div class="alert alert-info" role="alert">You need to wait for 20 days before seeing additional results.</div>';
 }
