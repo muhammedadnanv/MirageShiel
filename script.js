@@ -1,38 +1,45 @@
-const express = require('express');
-const multer = require('multer');
-const sharp = require('sharp');
-const fs = require('fs');
+document.getElementById('imageForm').addEventListener('submit', async function(event) {
+  event.preventDefault();
 
-const app = express();
-const port = 3000;
+  const imageInput = document.getElementById('imageInput');
+  const resultDiv = document.getElementById('result');
+  resultDiv.innerHTML = '';
 
-const upload = multer({ dest: 'uploads/' });
-
-app.use(express.static('public'));
-
-app.post('/upload', upload.single('file'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ message: 'No file uploaded' });
+  if (!imageInput.files || !imageInput.files[0]) {
+    resultDiv.innerHTML = '<div class="alert alert-danger" role="alert">Please select an image file.</div>';
+    return;
   }
 
-  const imagePath = `uploads/${req.file.filename}`;
-  const outputPath = `uploads/${req.file.filename}-processed.jpg`;
+  const imageFile = imageInput.files[0];
+  const img = new Image();
+  img.src = URL.createObjectURL(imageFile);
 
-  // Perform image processing (resize, etc.) using sharp
-  sharp(req.file.path)
-    .resize(300) // Resize the image to 300 pixels width
-    .toFile(outputPath, (err) => {
-      if (err) {
-        return res.status(500).json({ message: 'Error processing image' });
-      }
+  img.onload = async function() {
+    // Preprocess image
+    const processedImg = await preprocessImage(img);
 
-      // Perform your nudity detection logic here (not provided in this example)
+    // Load the pre-trained nudity detection model
+    const model = await loadModel();
 
-      // Send the processed image and result to the client
-      res.json({ imagePath: outputPath, result: 'Nudity detection result goes here' });
-    });
+    // Make prediction
+    const prediction = await predict(processedImg, model);
+
+    // Display result
+    resultDiv.innerHTML = `<div class="alert alert-${prediction ? 'danger' : 'success'}" role="alert">${prediction ? 'Nudity Detected' : 'No Nudity Detected'}</div>`;
+  };
 });
 
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
+async function preprocessImage(img) {
+  // Preprocess the image (resize, normalize, etc.)
+  return img;
+}
+
+async function loadModel() {
+  // Load the pre-trained model using TensorFlow.js
+  return null; // Placeholder, replace with actual model loading code
+}
+
+async function predict(processedImg, model) {
+  // Make prediction using the loaded model
+  return false; // Placeholder, replace with actual prediction logic
+}
