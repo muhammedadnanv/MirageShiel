@@ -1,47 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nudity Detection</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nudity Detection</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="style.css"> <!-- Your custom CSS file -->
 </head>
 <body>
-    <h1>Nudity Detection</h1>
-    <form action="/upload" method="post" enctype="multipart/form-data">
-        <label for="file">Choose an image:</label>
-        <input type="file" name="file" accept="image/*" required>
-        <br>
-        <button type="submit">Upload</button>
+  <div class="container">
+    <h1 class="mt-5 mb-3">Nudity Detection</h1>
+    <form id="imageForm" enctype="multipart/form-data">
+      <div class="form-group">
+        <input type="file" class="form-control-file" id="imageInput" accept="image/*" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Detect Nudity</button>
     </form>
-    <div id="result"></div>
+    <div id="result" class="mt-3"></div>
+  </div>
 
-    <script>
-        const form = document.querySelector('form');
-        const resultDiv = document.getElementById('result');
-
-        form.addEventListener('submit', async (event) => {
-            event.preventDefault();
-
-            const formData = new FormData(form);
-            const response = await fetch('/upload', {
-                method: 'POST',
-                body: formData
-            });
-            const result = await response.json();
-
-            const img = document.createElement('img');
-            img.src = result.imagePath;
-            img.alt = 'Processed Image';
-            img.style.maxWidth = '400px';
-
-            resultDiv.innerHTML = '';
-            resultDiv.appendChild(img);
-            resultDiv.innerHTML += `<p>${result.result}</p>`;
-        });
-    </script>
-  <script src="script.js">
-    
-  </script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script> <!-- TensorFlow.js -->
+  <script src="script.js"></script> <!-- Your custom JavaScript file -->
 </body>
 </html>
