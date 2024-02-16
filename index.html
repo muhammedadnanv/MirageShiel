@@ -5,7 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nudity Detection</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <link rel="stylesheet" href="style.css"> <!-- Your custom CSS file -->
+
+  <style>
+    body {
+      background-color: black;
+      color: goldenrod;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      width: 80%;
+      max-width: 600px;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background-color: goldenrod;
+      border-color: goldenrod;
+    }
+
+    .btn-primary:hover {
+      background-color: #d6af00;
+      border-color: #d6af00;
+    }
+
+    .form-control-file {
+      color: goldenrod;
+      border-color: goldenrod;
+    }
+
+    .form-control-file:focus {
+      color: goldenrod;
+      border-color: goldenrod;
+    }
+
+    #result {
+      color: goldenrod;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -21,6 +63,17 @@
 
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script> <!-- TensorFlow.js -->
-  <script src="script.js"></script> <!-- Your custom JavaScript file -->
+  <script>
+    // This is where your custom JavaScript code can go
+    document.getElementById('imageForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      
+      // This is where you can write your code to handle form submission, e.g., detect nudity from the uploaded image.
+      // You can use TensorFlow.js or any other library to perform image processing.
+      
+      // For demonstration purposes, let's just display a message in the result div.
+      document.getElementById('result').innerText = 'Nudity detection result will be displayed here.';
+    });
+  </script>
 </body>
 </html>
