@@ -96,6 +96,25 @@
       background-color: rgba(255, 255, 255, 0.9);
       backdrop-filter: blur(5px);
     }
+    .progress-bar {
+      height: 20px;
+      background-color: #ff66b2;
+    }
+    .history-container {
+      margin-top: 20px;
+    }
+    .history-item {
+      border: 1px solid #ff66b2;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+      background-color: rgba(255, 230, 240, 0.7);
+    }
+    .history-item img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 5px;
+    }
   </style>
 </head>
 <body>
@@ -108,9 +127,9 @@
     <form id="upload-form" class="text-center">
       <div class="form-group">
         <label for="image-upload" class="custom-file-upload">
-          <i class="fas fa-cloud-upload-alt"></i> Choose Image
+          <i class="fas fa-cloud-upload-alt"></i> Choose Images
         </label>
-        <input type="file" id="image-upload" class="form-control-file" accept="image/*" style="display: none;">
+        <input type="file" id="image-upload" class="form-control-file" accept="image/*" style="display: none;" multiple>
       </div>
       <div class="policy-container">
         <input type="checkbox" id="policy-agree" required>
@@ -118,14 +137,18 @@
           I agree to the <a href="#" data-toggle="modal" data-target="#policyModal">policy</a>
         </label>
       </div>
-      <button type="submit" class="btn btn-primary">Upload Image</button>
+      <button type="submit" class="btn btn-primary">Upload Images</button>
     </form>
     <div id="preview" class="text-center"></div>
     <div id="loader" class="text-center" style="display: none;">
       <div class="loader"></div>
       <p>Analyzing image...</p>
+      <div class="progress">
+        <div class="progress-bar" role="progressbar" style="width: 0%;" id="progress-bar"></div>
+      </div>
     </div>
     <div id="result" class="text-center"></div>
+    <div class="history-container" id="history-container"></div>
   </div>
 
   <footer>
@@ -182,143 +205,60 @@
       const resultDiv = document.getElementById('result');
       const previewDiv = document.getElementById('preview');
       const loaderDiv = document.getElementById('loader');
+      const progressBar = document.getElementById('progress-bar');
+      const historyContainer = document.getElementById('history-container');
 
       resultDiv.innerHTML = '';
       previewDiv.innerHTML = '';
       loaderDiv.style.display = 'block';
+      progressBar.style.width = '0%';
 
       if (fileInput.files.length === 0) {
-        resultDiv.innerHTML = '<p class="text-danger">Please upload an image file.</p>';
+        resultDiv.innerHTML = '<p class="text-danger">Please upload image files.</p>';
         loaderDiv.style.display = 'none';
         return;
       }
 
-      const file = fileInput.files[0];
-      const image = document.createElement('img');
-      image.src = URL.createObjectURL(file);
-      previewDiv.appendChild(image);
+      let progressIncrement = 100 / fileInput.files.length;
 
-      image.onload = async function() {
-        const isBlurred = await detectBlur(image);
+      for (let i = 0; i < fileInput.files.length; i++) {
+        const file = fileInput.files[i];
+        const reader = new FileReader();
 
-        if (isBlurred) {
-          resultDiv.innerHTML = '<p class="text-warning">The uploaded image appears to be blurred or out-of-focus.</p>';
-          loaderDiv.style.display = 'none';
-          return;
-        }
+        reader.onload = async function(e) {
+          const img = new Image();
+          img.src = e.target.result;
+          img.onload = async function() {
+            previewDiv.innerHTML += '<img src="' + img.src + '">';
 
-        const predictions = await model.classify(image);
+            const predictions = await model.classify(img);
 
-        const results = predictions.map(prediction => {
-          let badgeClass = 'badge-secondary';
-          if (prediction.probability > 0.75) {
-            badgeClass = 'badge-danger';
-          } else if (prediction.probability > 0.5) {
-            badgeClass = 'badge-warning';
-          } else if (prediction.probability > 0.25) {
-            badgeClass = 'badge-info';
-          } else {
-            badgeClass = 'badge-success';
-          }
-          return `<span class="badge ${badgeClass}">${prediction.className}: ${Math.round(prediction.probability * 100)}%</span>`;
-        }).join('<br>');
+            resultDiv.innerHTML += '<h3>Analysis Result:</h3>';
+            predictions.forEach(prediction => {
+              resultDiv.innerHTML += `<p>${prediction.className}: ${(prediction.probability * 100).toFixed(2)}%</p>`;
+            });
 
-        resultDiv.innerHTML = `<h3>Detection Results:</h3><p>${results}</p>`;
-        loaderDiv.style.display = 'none';
+            // Update progress bar
+            progressBar.style.width = `${progressIncrement * (i + 1)}%`;
+
+            // Save to history
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.innerHTML = `
+              <img src="${img.src}">
+              <h5>Analysis Result:</h5>
+              ${predictions.map(p => `<p>${p.className}: ${(p.probability * 100).toFixed(2)}%</p>`).join('')}
+            `;
+            historyContainer.appendChild(historyItem);
+          };
+        };
+
+        reader.readAsDataURL(file);
       }
+
+      loaderDiv.style.display = 'none';
     });
-
-    async function detectBlur(image) {
-      return new Promise(resolve => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const threshold = 30; // Adjust this threshold as needed for sensitivity
-
-        canvas.width = image.naturalWidth || image.width;
-        canvas.height = image.naturalHeight || image.height;
-        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const { data } = imageData;
-        let sum = 0;
-
-        for (let i = 0; i < data.length; i += 4) {
-          const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
-          sum += brightness;
-        }
-
-        const averageBrightness = sum / (canvas.width * canvas.height);
-        const isBlurred = averageBrightness < threshold;
-
-        resolve(isBlurred);
-      });
-    }
-
-    // Offline Mode Enhancement
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/service-worker.js')
-          .then(function(registration) {
-            console.log('Service Worker registration successful with scope: ', registration.scope);
-          }, function(err) {
-            console.log('Service Worker registration failed: ', err);
-          });
-      });
-
-      // Cache images and results for offline use
-      const CACHE_NAME = 'mirage-shield-cache-v1';
-      const urlsToCache = [
-        '/',
-        '/index.html',
-        '/manifest.json',
-        '/service-worker.js',
-        '/Designer (1).png',
-        '/offline.html' // Create an offline fallback page if needed
-      ];
-
-      self.addEventListener('install', function(event) {
-        event.waitUntil(
-          caches.open(CACHE_NAME)
-            .then(function(cache) {
-              console.log('Opened cache');
-              return cache.addAll(urlsToCache);
-            })
-        );
-      });
-
-      self.addEventListener('fetch', function(event) {
-        event.respondWith(
-          caches.match(event.request)
-            .then(function(response) {
-              // Cache hit - return response
-              if (response) {
-                return response;
-              }
-
-              // Clone the request for fetch operation
-              let fetchRequest = event.request.clone();
-
-              return fetch(fetchRequest)
-                .then(function(response) {
-                  // Check if we received a valid response
-                  if (!response || response.status !== 200 || response.type !== 'basic') {
-                    return response;
-                  }
-
-                  // Clone the response for cache storage
-                  let responseToCache = response.clone();
-
-                  caches.open(CACHE_NAME)
-                    .then(function(cache) {
-                      cache.put(event.request, responseToCache);
-                    });
-
-                  return response;
-                });
-            })
-        );
-      });
-    }
   </script>
 </body>
-</html>
+  </html>
+  
